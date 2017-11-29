@@ -1,6 +1,6 @@
 import React from 'react'
 
-import pieces from './unicodePieces'
+import pieces from 'app/unicodePieces'
 
 const styles = {
   piece: {

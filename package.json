@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "material-ui": "^0.19.4",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "recompose": "^0.26.0"
+    "react-redux": "^5.0.6",
+    "recompose": "^0.26.0",
+    "redux": "^3.7.2"
   },
   "devDependencies": {
     "react-scripts": "1.0.14"

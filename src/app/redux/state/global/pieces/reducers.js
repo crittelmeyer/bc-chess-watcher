@@ -1,8 +1,7 @@
-import React from 'react'
+import { UPDATE_PIECES } from './actions/updatePieces'
+import updatePiecesReducer from './reducers/updatePiecesReducer'
 
-import Board from './Board'
-
-const pieceRows = [
+const pieces = [
   ['blackRook', 'blackKnight', 'blackBishop', 'blackQueen', 'blackKing', 'blackBishop', 'blackKnight', 'blackRook'],
   ['blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn', 'blackPawn'],
   ['', '', '', '', '', '', '', ''],
@@ -13,10 +12,13 @@ const pieceRows = [
   ['whiteRook', 'whiteKnight', 'whiteBishop', 'whiteQueen', 'whiteKing', 'whiteBishop', 'whiteKnight', 'whiteRook'],
 ]
 
-const App = () => (
-  <Board pieceRows={pieceRows} />
-)
+const defaultState = pieces
 
-
-
-export default App
+export default (state = defaultState, action) => {
+  switch (action.type) {
+    case UPDATE_PIECES:
+      return updatePiecesReducer(state, action)
+    default:
+      return state
+  }
+}

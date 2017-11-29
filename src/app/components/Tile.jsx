@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { center } from './utilities'
+import { center } from 'app/utilities'
 
 const TILE_SIZE = 80
 

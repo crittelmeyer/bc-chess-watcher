@@ -1,17 +1,28 @@
 import React from 'react'
 import { compose, withState, withHandlers } from 'recompose'
+import { connect } from 'react-redux'
 
 import Piece from './Piece'
 import Tile from './Tile'
 
+import { selectPieces } from 'app/redux/selectors'
+import { updatePieces } from 'app/redux/actions'
+
 const enhance = compose(
+  connect(
+    state => ({
+      pieces: selectPieces(state)
+    }),
+    dispatch => ({
+      setPieces: pieces => dispatch(updatePieces(pieces))
+    })
+  ),
   withState('dragging', 'setDragging', ''),
   withState('ghostCoords', 'setGhostCoords', {}),
   withState('cursorOffset', 'setCursorOffset', {}),
   withState('sourceTile', 'setSourceTile', null),
-  withState('targetTile', 'setTargetTile', null),
   withHandlers({
-    onMouseDown: ({ setCursorOffset, setDragging, setGhostCoords }) => (event, pieceName) => {
+    onPieceMouseDown: ({ setCursorOffset, setDragging, setGhostCoords }) => (event, pieceName) => {
       const cursorOffset = {
         x: event.clientX - event.target.offsetLeft,
         y: event.clientY - event.target.offsetTop
@@ -23,11 +34,11 @@ const enhance = compose(
       })
       setDragging(pieceName)
     },
-    onMouseUp: ({ setDragging, setGhostCoords }) => () => {
+    onPieceMouseUp: ({ setDragging, setGhostCoords }) => () => {
       setDragging('')
       setGhostCoords({})
     },
-    onMouseMove: ({ cursorOffset, dragging, setGhostCoords }) => (event) => {
+    onPieceMouseMove: ({ cursorOffset, dragging, setGhostCoords }) => (event) => {
       if (dragging) {
         setGhostCoords({
           x: event.clientX - cursorOffset.x,
@@ -35,13 +46,13 @@ const enhance = compose(
         })
       }
     },
-    onTileMouseDown: ({ setSourceTile, setTargetTile, sourceTile }) => (tile) => {
+    onTileMouseDown: ({ setSourceTile, sourceTile }) => (rowIndex, colIndex) => {
       if (sourceTile === null) {
-        setSourceTile(tile)
-        setTargetFile(null)
+        setSourceTile({ rowIndex, colIndex })
       }
     },
-    onTileMouseUp: () => ({ setSourceTile, setTargetTile }) => {
+    onTileMouseUp: ({ setSourceTile, sourceTile }) => (rowIndex, colIndex) => {
+      setSourceTile(null)
 
     }
   })
@@ -52,26 +63,26 @@ const styles = {
 
   ghostPiece: {
     opacity: 0.6,
-    position: 'absolute',
-
+    pointerEvents: 'none',
+    position: 'absolute'
   }
 }
 
 const Board = ({
   dragging,
   ghostCoords,
-  onMouseDown,
-  onMouseUp,
-  onMouseMove,
+  onBoardMouseUp,
+  onBoardMouseMove,
+  onPieceMouseDown,
   onTileMouseDown,
   onTileMouseUp,
-  pieceRows
+  pieces
 }) => (
   <div
-    onMouseMove={onMouseMove}
-    onMouseUp={onMouseUp}
+    onMouseMove={onBoardMouseMove}
+    onMouseUp={onBoardMouseUp}
   >
-    {pieceRows.map((row, rowIndex) => (
+    {pieces.map((row, rowIndex) => (
       <div
         key={rowIndex}
         style={styles.board}
@@ -80,13 +91,13 @@ const Board = ({
           <Tile
             color={(rowIndex + colIndex) % 2 === 0 ? 'red' : 'blue'}
             key={`${rowIndex}_${colIndex}`}
-            onMouseDown={onTileMouseDown}
-            onMouseUp={onTileMouseUp}
+            onMouseDown={() => { onTileMouseDown(rowIndex, colIndex) }}
+            onMouseUp={() => { onTileMouseUp(rowIndex, colIndex) }}
           >
             <Piece
               name={piece}
               size={48}
-              onMouseDown={onMouseDown}
+              onMouseDown={onPieceMouseDown}
             />
           </Tile>
         ))}
