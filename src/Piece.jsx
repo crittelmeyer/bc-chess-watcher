@@ -2,12 +2,21 @@ import React from 'react'
 
 import pieces from './unicodePieces'
 
-const Piece = ({ onMouseDown, onMouseUp, name, size }) => (
-  <div
+const styles = {
+  piece: {
+    cursor: 'pointer',
+    userSelect: 'none'
+  }
+}
 
-    style={{ fontSize: size }}
-    onMouseDown={() => onMouseDown(name)}
-    onMouseUp={onMouseUp}
+const Piece = ({ onMouseDown, name, size, style }) => (
+  <div
+    style={{
+      ...styles.piece,
+      fontSize: size,
+      ...style
+    }}
+    onMouseDown={(event) => onMouseDown(event, name)}
   >
     {pieces[name]}
   </div>

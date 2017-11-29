@@ -4,7 +4,7 @@ import { center } from './utilities'
 
 const TILE_SIZE = 80
 
-const Tile = ({ children, color }) => (
+const Tile = ({ children, color, onMouseDown, onMouseUp }) => (
   <div
     style={{
       backgroundColor: color,
@@ -14,6 +14,8 @@ const Tile = ({ children, color }) => (
       width: TILE_SIZE,
       ...center
     }}
+    onMouseDown={onMouseDown}
+    onMouseUp={onMouseUp}
   >
     {children}
   </div>
