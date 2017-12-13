@@ -1,6 +1,7 @@
 import React from 'react'
 import { compose, withState, withHandlers } from 'recompose'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import Piece from './Piece'
 import Tile from './Tile'
@@ -51,9 +52,15 @@ const enhance = compose(
         setSourceTile({ rowIndex, colIndex })
       }
     },
-    onTileMouseUp: ({ setSourceTile, sourceTile }) => (rowIndex, colIndex) => {
-      setSourceTile(null)
+    onTileMouseUp: ({ dragging, pieces, setPieces, setSourceTile, sourceTile }) => (rowIndex, colIndex) => {
+      const clonedPieces = _.cloneDeep(pieces)
+      if (dragging) {
+        clonedPieces[rowIndex][colIndex] = dragging
+        clonedPieces[sourceTile.rowIndex][sourceTile.colIndex] = ''
+      }
 
+      setPieces(clonedPieces)
+      setSourceTile(null)
     }
   })
 )
@@ -89,7 +96,7 @@ const Board = ({
       >
         {row.map((piece, colIndex) => (
           <Tile
-            color={(rowIndex + colIndex) % 2 === 0 ? 'red' : 'blue'}
+            color={(rowIndex + colIndex) % 2 === 0 ? 'lightgrey' : 'grey'}
             key={`${rowIndex}_${colIndex}`}
             onMouseDown={() => { onTileMouseDown(rowIndex, colIndex) }}
             onMouseUp={() => { onTileMouseUp(rowIndex, colIndex) }}
