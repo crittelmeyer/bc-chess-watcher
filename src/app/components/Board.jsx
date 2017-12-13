@@ -34,11 +34,11 @@ const enhance = compose(
       })
       setDragging(pieceName)
     },
-    onPieceMouseUp: ({ setDragging, setGhostCoords }) => () => {
+    onBoardMouseUp: ({ setDragging, setGhostCoords }) => () => {
       setDragging('')
       setGhostCoords({})
     },
-    onPieceMouseMove: ({ cursorOffset, dragging, setGhostCoords }) => (event) => {
+    onBoardMouseMove: ({ cursorOffset, dragging, setGhostCoords }) => (event) => {
       if (dragging) {
         setGhostCoords({
           x: event.clientX - cursorOffset.x,
