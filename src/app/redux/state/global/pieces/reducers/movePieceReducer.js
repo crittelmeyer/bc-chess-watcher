@@ -1,8 +1,8 @@
 export default function(state, action) {
-  const { pieces } = action
-
+  const { move } = action
+  
   return {
     ...state,
-    placement: pieces
+    lastMove: move
   }
 }

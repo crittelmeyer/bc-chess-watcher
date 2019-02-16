@@ -1,6 +1,6 @@
 import React from 'react'
 
-import pieces from 'app/unicodePieces'
+import { unicodePieces } from 'app/utilities'
 
 const styles = {
   piece: {
@@ -18,7 +18,7 @@ const Piece = ({ onMouseDown, name, size, style }) => (
     }}
     onMouseDown={(event) => onMouseDown(event, name)}
   >
-    {pieces[name]}
+    {unicodePieces[name]}
   </div>
 )
 

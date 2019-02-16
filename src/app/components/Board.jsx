@@ -1,27 +1,35 @@
 import React from 'react'
-import { compose, withState, withHandlers } from 'recompose'
+import { compose, withHandlers, withPropsOnChange, withState } from 'recompose'
 import { connect } from 'react-redux'
-import _ from 'lodash'
+import forEach from 'lodash/fp/forEach'
 
 import Piece from './Piece'
 import Tile from './Tile'
 
-import { selectPieces } from 'app/redux/selectors'
-import { updatePieces } from 'app/redux/actions'
+import { selectGame, selectPieces } from 'app/redux/selectors'
+import { movePiece } from 'app/redux/actions'
+import { getPgnGridLocation, getValidMoves } from 'app/utilities'
 
 const enhance = compose(
   connect(
     state => ({
+      game: selectGame(state),
       pieces: selectPieces(state)
     }),
     dispatch => ({
-      setPieces: pieces => dispatch(updatePieces(pieces))
+      movePiece: (piece, source, target) => dispatch(movePiece({ piece, source, target }))
     })
   ),
   withState('dragging', 'setDragging', ''),
   withState('ghostCoords', 'setGhostCoords', {}),
   withState('cursorOffset', 'setCursorOffset', {}),
   withState('sourceTile', 'setSourceTile', null),
+  withPropsOnChange(
+    ['dragging'],
+    ({ dragging, game, sourceTile }) => ({
+      validMoves: dragging === '' ? [] : getValidMoves(game, sourceTile)
+    })
+  ),
   withHandlers({
     onPieceMouseDown: ({ setCursorOffset, setDragging, setGhostCoords }) => (event, pieceName) => {
       const cursorOffset = {
@@ -52,14 +60,11 @@ const enhance = compose(
         setSourceTile({ rowIndex, colIndex })
       }
     },
-    onTileMouseUp: ({ dragging, pieces, setPieces, setSourceTile, sourceTile }) => (rowIndex, colIndex) => {
-      const clonedPieces = _.cloneDeep(pieces)
-      if (dragging) {
-        clonedPieces[rowIndex][colIndex] = dragging
-        clonedPieces[sourceTile.rowIndex][sourceTile.colIndex] = ''
-      }
+    onTileMouseUp: props => (rowIndex, colIndex) => {
+      const { dragging, setSourceTile, sourceTile } = props
 
-      setPieces(clonedPieces)
+      props.movePiece(dragging, sourceTile, { rowIndex, colIndex })
+
       setSourceTile(null)
     }
   })
@@ -75,6 +80,31 @@ const styles = {
   }
 }
 
+const getTileColor = (validMoves, colIndex, rowIndex) => {
+  let color = (rowIndex + colIndex) % 2 === 0 ? 'lightgrey' : 'grey'
+
+  forEach(
+    move => {
+      const isAttack = move.indexOf('x') > -1
+      const isCheck = move.slice(-1) === '+'
+      const target = isCheck ? move.slice(-3).slice(0, 2) : move.slice(-2)
+      
+      if (target === getPgnGridLocation({ colIndex, rowIndex })) {
+        if (isCheck) {
+          color = 'green'
+        } else if (isAttack) {
+          color = 'red'
+        } else {
+          color = 'yellow'
+        }
+      }
+    },
+    validMoves
+  )
+
+  return color
+}
+
 const Board = ({
   dragging,
   ghostCoords,
@@ -83,7 +113,8 @@ const Board = ({
   onPieceMouseDown,
   onTileMouseDown,
   onTileMouseUp,
-  pieces
+  pieces,
+  validMoves
 }) => (
   <div
     onMouseMove={onBoardMouseMove}
@@ -96,7 +127,7 @@ const Board = ({
       >
         {row.map((piece, colIndex) => (
           <Tile
-            color={(rowIndex + colIndex) % 2 === 0 ? 'lightgrey' : 'grey'}
+            color={getTileColor(validMoves, colIndex, rowIndex)}
             key={`${rowIndex}_${colIndex}`}
             onMouseDown={() => { onTileMouseDown(rowIndex, colIndex) }}
             onMouseUp={() => { onTileMouseUp(rowIndex, colIndex) }}
