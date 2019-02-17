@@ -3,7 +3,6 @@ import invert from 'lodash/fp/invert'
 import join from 'lodash/fp/join'
 import map from 'lodash/fp/map'
 import reduce from 'lodash/fp/reduce'
-import { blue200 } from 'material-ui/styles/colors';
 
 export const center = {
   justifyContent: 'center',
@@ -52,14 +51,11 @@ export const fenPieces = {
 }
 
 export const fenToArray = fen => {
-  const [
-    placement,
-    ..._
-  ] = fen.split(' ')
+  const [placement] = fen.split(' ')
   const ranks = placement.split('/')
   const placementArray = map(
     rank => flatten(map(
-      piece => isNaN(piece) ? fenPieces[piece] : new Array(parseInt(piece)).fill(''),
+      piece => isNaN(piece) ? fenPieces[piece] : new Array(parseInt(piece, 10)).fill(''),
       rank.split('')
     )),
     ranks
@@ -79,7 +75,7 @@ export const arrayToFen = arr => {
               return `${acc}1`
             }
 
-            return `${acc.slice(0, acc.length - 1)}${parseInt(acc.slice(-1)) + 1}`
+            return `${acc.slice(0, acc.length - 1)}${parseInt(acc.slice(-1), 10) + 1}`
           }
 
           return `${acc}${invert(fenPieces)[piece]}`

@@ -64,8 +64,8 @@ const styles = {
   container: {
     display: 'flex',
     flexDirection: 'column',
-    fontSize: 48,
-    width: 200,
+    fontSize: 32,
+    width: 100,
     ...center
   },
 

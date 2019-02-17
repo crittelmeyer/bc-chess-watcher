@@ -1,13 +1,20 @@
 import React from 'react'
 import { compose, withHandlers, withState } from 'recompose'
 import { connect } from 'react-redux'
-
-import { Drawer, RaisedButton, TextField } from 'material-ui'
+import { withStyles } from '@material-ui/core/styles'
 
 import { updateGame, updatePieces } from 'app/redux/actions'
 import { fenToArray, initialPlacement } from 'app/utilities'
 
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+
+const styles = {
+  
+}
+
 const enhance = compose(
+  withStyles(styles),
   connect(
     () => ({}),
     dispatch => ({
@@ -29,26 +36,20 @@ const enhance = compose(
   })
 )
 
-const styles = {
-  drawer: {
-    backgroundColor: 'lightgrey'
-  }
-}
-
-const RightMenu = ({ fen, onFenChange, onSetFenClick, setPieces }) => (
-  <Drawer openSecondary={true} open={true} containerStyle={styles.drawer}>
-    <RaisedButton
+const ControlPanel = ({ fen, onFenChange, onSetFenClick, setPieces }) => (
+  <div>
+    <Button
       onClick={() => setPieces(initialPlacement)}
     >
       {'reset'}
-    </RaisedButton>
+    </Button>
     <TextField id="fen" value={fen} onChange={onFenChange}></TextField>
-    <RaisedButton
+    <Button
       onClick={onSetFenClick}
     >
       {'set fen'}
-    </RaisedButton>
-  </Drawer>
+    </Button>
+  </div>
 )
 
-export default enhance(RightMenu)
+export default enhance(ControlPanel)
